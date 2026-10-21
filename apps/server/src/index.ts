@@ -3,11 +3,18 @@ import express from "express";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { z } from "zod";
+import cors from "cors";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 
 app.use(express.json());
+app.use(cors({
+  origin: true,
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Accept", "Mcp-Session-Id", "Mcp-Protocol-Version", "Last-Event-ID"],
+  exposedHeaders: ["Mcp-Session-Id", "Mcp-Protocol-Version"],
+}));
 
 app.get("/health", (_req, res) => {
   res.json({

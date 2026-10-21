@@ -133,7 +133,12 @@ const evaluateWithBackend = async () => {
   setBackendError("");
 
   try {
-    const response = await fetch("/api/mcp", {
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "";
+const apiUrl = apiBaseUrl
+  ? `${apiBaseUrl}/mcp`
+  : "/api/mcp";
+
+const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
