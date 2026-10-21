@@ -25,6 +25,17 @@ function App() {
   const [reevaluated, setReevaluated] = useState(false);
   const [decisionHistory, setDecisionHistory] = useState<string[]>([]);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [backendLoading, setBackendLoading] = useState(false);
+const [backendResult, setBackendResult] = useState<{
+  strategy: string;
+  score: number;
+  valid: boolean;
+  evaluationDay: number;
+  presentationDay: number;
+  owner: string;
+  issues: string[];
+} | null>(null);
+const [backendError, setBackendError] = useState("");
 
   
 const affectedTaskCount = disruption
@@ -117,6 +128,91 @@ const selectedStrategy = strategyDetails[
 const selectedValidation = validateStrategy(selectedStrategy);
 
 
+const evaluateWithBackend = async () => {
+  setBackendLoading(true);
+  setBackendError("");
+
+  try {
+    const response = await fetch("/api/mcp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json, text/event-stream",
+        "MCP-Protocol-Version": "2025-03-26",
+      },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "tools/call",
+        params: {
+          name: "evaluate_recovery_strategy",
+          arguments: {
+            strategyName: selectedStrategy.title,
+            evaluationDay: selectedStrategy.evaluationDay,
+            presentationDay: selectedStrategy.presentationDay,
+            owner: selectedStrategy.owner,
+          },
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Backend request failed: ${response.status}`);
+    }
+
+    
+const contentType = response.headers.get("content-type") || "";
+let data: any;
+
+if (contentType.includes("application/json")) {
+  data = await response.json();
+} else {
+  const text = await response.text();
+
+  const dataLine = text
+    .split(/\r?\n/)
+    .find((line) => line.startsWith("data:"));
+
+  if (!dataLine) {
+    throw new Error(
+      "The backend returned an unexpected MCP response."
+    );
+  }
+
+  data = JSON.parse(dataLine.slice(5).trim());
+}
+
+
+    if (data.error) {
+      throw new Error(data.error.message || "MCP evaluation failed.");
+    }
+
+    const contentText = data.result?.content?.find(
+      (item: { type: string; text?: string }) => item.type === "text"
+    )?.text;
+
+    if (!contentText) {
+      throw new Error("The backend returned no evaluation result.");
+    }
+
+    const result = JSON.parse(contentText);
+
+    setBackendResult(result);
+    setDecisionHistory((history) => [
+      ...history,
+      `${new Date().toLocaleTimeString()} — Backend evaluation: ${result.strategy} | Score: ${result.score}/100 | Validation: ${result.valid ? "Passed" : `Failed — ${result.issues.join(" ")}`}`,
+    ]);
+  } catch (error) {
+    setBackendError(
+      error instanceof Error ? error.message : "Unknown backend error."
+    );
+  } finally {
+    setBackendLoading(false);
+  }
+};
+
+
+
 
 const copyDecisionSummary = async () => {
   const summary = [
@@ -174,7 +270,7 @@ const downloadDecisionReport = () => {
 `Recommended strategy: ${recommendedStrategy.title}`,
 `Score difference: ${recommendedStrategy.score - selectedImpactScore} points`,
 `Decision: ${
-  selectedStrategy.key === recommendedStrategy.key
+  selectedStrategy.title === recommendedStrategy.title
     ? "Selected strategy matches the recommendation."
     : selectedValidation.isValid
       ? "The selected strategy is valid, but another strategy scores higher."
@@ -188,7 +284,7 @@ const downloadDecisionReport = () => {
 }`,
 `Evaluation owner: ${selectedStrategy.owner}`,
 `Trade-off: ${
-  selectedStrategy.key === recommendedStrategy.key
+  selectedStrategy.title === recommendedStrategy.title
     ? "Selected strategy matches the highest-scoring valid recommendation."
     : selectedValidation.isValid
       ? "Selected strategy is valid, but scores lower than the recommendation."
@@ -1136,6 +1232,7 @@ Demo constraints checked; real-world constraints not verified
   setApproved(false);
   setDisruption(true);
   setReevaluated(true);
+    void evaluateWithBackend();
   setDecisionHistory((history) => [
   ...history,
   `${new Date().toLocaleTimeString()} — Re-evaluated: ${selectedStrategy.title} | Score: ${selectedImpactScore}/100 | Validation: ${
@@ -1195,6 +1292,65 @@ Demo constraints checked; real-world constraints not verified
   </div>
 )}
 
+
+{backendLoading && (
+  <div className="validation-row">
+    <strong>Evaluating with Ripple backend...</strong>
+  </div>
+)}
+
+{backendError && (
+  <div className="deadline-warning" role="alert">
+    <strong>Backend evaluation failed</strong>
+    <p>{backendError}</p>
+  </div>
+)}
+
+{backendResult && (
+  <div className="scenario-box">
+    <h4>Ripple Backend Evaluation</h4>
+
+    <p>
+      <strong>Strategy:</strong> {backendResult.strategy}
+    </p>
+
+    <p>
+      <strong>Backend score:</strong> {backendResult.score}/100
+    </p>
+
+    <p>
+      <strong>Validation:</strong>{" "}
+      {backendResult.valid ? "Passed" : "Failed"}
+    </p>
+
+    <p>
+      <strong>Evaluation owner:</strong> {backendResult.owner}
+    </p>
+
+    <p>
+      <strong>Evaluation day:</strong> Day{" "}
+      {backendResult.evaluationDay}
+    </p>
+
+    <p>
+      <strong>Presentation day:</strong> Day{" "}
+      {backendResult.presentationDay}
+    </p>
+
+    {backendResult.issues.length > 0 && (
+      <>
+        <strong>Issues to review:</strong>
+        <ul>
+          {backendResult.issues.map((issue, index) => (
+            <li key={`${issue}-${index}`}>{issue}</li>
+          ))}
+        </ul>
+      </>
+    )}
+  </div>
+)}
+
+
 {decisionHistory.length > 0 && (
   <div className="scenario-box">
     <h4>Decision History</h4>
@@ -1210,8 +1366,7 @@ Demo constraints checked; real-world constraints not verified
     
 <ul className="decision-history-list">
   {decisionHistory.map((entry, index) => {
-    const [timestamp, ...entryParts] = entry.split(" — ");
-const entryDetails = entryParts.join(" — ");
+    const timestamp = entry.split(" — ")[0];
     const isApproved = entry.includes("Approved for review:");
     const isReevaluated = entry.includes("Re-evaluated:");
     const status = isApproved
