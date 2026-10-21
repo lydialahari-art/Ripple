@@ -73,6 +73,7 @@ Open a terminal:
 cd apps/server
 npm install
 npm run dev
+```
 
 The backend runs on port 3001 by default.
 
