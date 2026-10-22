@@ -1389,10 +1389,23 @@ Demo constraints checked; real-world constraints not verified
 
             {reevaluated && !approved && (
   <div className="success-message">
-    <strong>[OK] Strategy re-evaluated</strong>
+    <strong>
+      {backendLoading
+        ? "Evaluating recovery strategy..."
+        : backendResult
+          ? backendResult.valid
+            ? "Strategy re-evaluated — validation passed"
+            : "Strategy re-evaluated — validation failed"
+          : "Recovery strategy requires review"}
+    </strong>
     <p>
-      The recovery options and recommendation reflect the
-      current demo rules. Please review the result before approval.
+      {backendLoading
+        ? "Waiting for the backend evaluation. Please review the result before approval."
+        : backendResult
+          ? backendResult.valid
+            ? "The backend checks passed. Verify actual deadlines, dependencies, and team availability before approval."
+            : `This strategy failed validation: ${backendResult.issues.join(" ")}`
+          : "Review the recovery plan and evaluate it before approval."}
     </p>
   </div>
 )}
