@@ -584,7 +584,7 @@ const selectedImpactScore =
                 <h3>Impact analysis</h3>
                 <p>Understand what a change affects</p>
               </div>
-              <span className="impact-icon">[i]</span>
+              <span className="impact-icon" aria-hidden="true">i</span>
             </div>
 
             {disruption ? (
@@ -1404,9 +1404,16 @@ Demo constraints checked; real-world constraints not verified
 )}
 
 {backendResult && (
-  <div className="scenario-box">
-    <h4>Ripple Backend Evaluation</h4>
-
+  <div
+  className={`scenario-box ${
+    backendResult.valid ? "validation-success" : "validation-warning"
+  }`}
+  role="status"
+  aria-live="polite"
+>
+  <h4>
+    Latest Backend Evaluation — {backendResult.valid ? "Passed" : "Failed"}
+  </h4>
     <p>
       <strong>Strategy:</strong> {backendResult.strategy}
     </p>
