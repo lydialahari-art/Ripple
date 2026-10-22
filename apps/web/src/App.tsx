@@ -1330,14 +1330,6 @@ Demo constraints checked; real-world constraints not verified
   setDisruption(true);
   setReevaluated(true);
     void evaluateWithBackend();
-  setDecisionHistory((history) => [
-  ...history,
-  `${new Date().toLocaleTimeString()} - Re-evaluated: ${selectedStrategy.title} | Score: ${selectedImpactScore}/100 | Validation: ${
-    selectedValidation.isValid
-      ? "Passed"
-      : `Failed - ${selectedValidation.issues.join(" ")}`
-  }`,
-]);
 }}
 >
   ↻ Re-evaluate strategy
@@ -1404,16 +1396,15 @@ Demo constraints checked; real-world constraints not verified
 )}
 
 {backendResult && (
-  <div
-  className={`scenario-box ${
-    backendResult.valid ? "validation-success" : "validation-warning"
-  }`}
-  role="status"
-  aria-live="polite"
->
+  
+<div className="scenario-box" role="status" aria-live="polite">
   <h4>
     Latest Backend Evaluation — {backendResult.valid ? "Passed" : "Failed"}
   </h4>
+  <p className={backendResult.valid ? "validation-success" : "validation-warning"}>
+    <strong>Validation:</strong> {backendResult.valid ? "Passed" : "Failed"}
+  </p>
+
     <p>
       <strong>Strategy:</strong> {backendResult.strategy}
     </p>
