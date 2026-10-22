@@ -196,6 +196,10 @@ if (contentType.includes("application/json")) {
       throw new Error(data.error.message || "MCP evaluation failed.");
     }
 
+    
+const result =
+  data.result?.structuredContent ??
+  (() => {
     const contentText = data.result?.content?.find(
       (item: { type: string; text?: string }) => item.type === "text"
     )?.text;
@@ -204,7 +208,19 @@ if (contentType.includes("application/json")) {
       throw new Error("The backend returned no evaluation result.");
     }
 
-    const result = JSON.parse(contentText);
+    return JSON.parse(contentText);
+  })();
+
+if (
+  result.strategy !== customStrategy ||
+  result.evaluationDay !== Number(customEvaluationDay) ||
+  result.presentationDay !== Number(customPresentationDay)
+) {
+  throw new Error(
+    "The backend result does not match the submitted recovery plan. Please evaluate again."
+  );
+}
+
 
     setBackendResult(result);
     setDecisionHistory((history) => [
