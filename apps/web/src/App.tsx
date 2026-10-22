@@ -1,4 +1,4 @@
-
+﻿
 import { useState } from "react";
 import "./App.css";
 
@@ -36,6 +36,10 @@ const [backendResult, setBackendResult] = useState<{
   issues: string[];
 } | null>(null);
 const [backendError, setBackendError] = useState("");
+const [customStrategy, setCustomStrategy] = useState("Balanced recovery");
+const [customEvaluationDay, setCustomEvaluationDay] = useState("5");
+const [customPresentationDay, setCustomPresentationDay] = useState("7");
+const [customOwner, setCustomOwner] = useState("Rahul");
 
   
 const affectedTaskCount = disruption
@@ -152,10 +156,10 @@ const response = await fetch(apiUrl, {
         params: {
           name: "evaluate_recovery_strategy",
           arguments: {
-            strategyName: selectedStrategy.title,
-            evaluationDay: selectedStrategy.evaluationDay,
-            presentationDay: selectedStrategy.presentationDay,
-            owner: selectedStrategy.owner,
+            strategyName: customStrategy,
+            evaluationDay: Number(customEvaluationDay),
+            presentationDay: Number(customPresentationDay),
+            owner: customOwner.trim(),
           },
         },
       }),
@@ -205,7 +209,7 @@ if (contentType.includes("application/json")) {
     setBackendResult(result);
     setDecisionHistory((history) => [
       ...history,
-      `${new Date().toLocaleTimeString()} — Backend evaluation: ${result.strategy} | Score: ${result.score}/100 | Validation: ${result.valid ? "Passed" : `Failed — ${result.issues.join(" ")}`}`,
+      `${new Date().toLocaleTimeString()} - Backend evaluation: ${result.strategy} | Score: ${result.score}/100 | Validation: ${result.valid ? "Passed" : `Failed - ${result.issues.join(" ")}`}`,
     ]);
   } catch (error) {
     setBackendError(
@@ -221,7 +225,7 @@ if (contentType.includes("application/json")) {
 
 const copyDecisionSummary = async () => {
   const summary = [
-    "RIPPLE — DECISION SUMMARY",
+    "RIPPLE - DECISION SUMMARY",
     `Recommended strategy: ${recommendedStrategy.title}`,
     `Recommendation score: ${recommendedStrategy.score}/100`,
     `Recommendation fit: ${
@@ -251,7 +255,7 @@ setCopySuccess(true);
 
 const downloadDecisionReport = () => {
   const report = [
-    "RIPPLE — DECISION REPORT",
+    "RIPPLE - DECISION REPORT",
     
 `Selected strategy: ${selectedStrategy.title}`,
 `Selected strategy score: ${selectedImpactScore}/100`,
@@ -437,12 +441,12 @@ const selectedImpactScore =
           <span className="brand-mark">r</span> ripple
         </div>
         <p className="side-label">WORKSPACE</p>
-        <button className="nav-item active">● &nbsp; Overview</button>
+        <button className="nav-item active"><span aria-hidden="true">01</span>&nbsp; Overview</button>
         <button className="nav-item" onClick={() => setDisruption(true)}>
-          ↗ &nbsp; Recovery plans
+          <span aria-hidden="true">02</span>&nbsp; Recovery plans
         </button>
         <button className="nav-item" onClick={reset}>
-          ↻ &nbsp; Reset workspace
+          <span aria-hidden="true">↻</span>&nbsp; Reset workspace
         </button>
         <div className="sidebar-bottom">
           <div className="avatar">LL</div>
@@ -495,9 +499,9 @@ const selectedImpactScore =
         <div className="section-heading">
           <div>
             <h2>Delivery snapshot</h2>
-            <p>Student ML project · Demo workspace</p>
+            <p>Student ML project | Demo workspace</p>
           </div>
-          <button className="text-button" onClick={reset}>Reset demo ↺</button>
+          <button className="text-button" onClick={reset}>Reset demo →</button>
         </div>
 
         <div className="stats-grid">
@@ -543,7 +547,7 @@ const selectedImpactScore =
                   />
                   <div>
                     <strong>{task.name}</strong>
-                    <small>{task.owner} · {task.duration} days</small>
+                    <small>{task.owner} | {task.duration} days</small>
                   </div>
                 </div>
                 <div className="task-schedule">
@@ -580,7 +584,7 @@ const selectedImpactScore =
                 <h3>Impact analysis</h3>
                 <p>Understand what a change affects</p>
               </div>
-              <span className="impact-icon">⌁</span>
+              <span className="impact-icon">[i]</span>
             </div>
 
             {disruption ? (
@@ -605,7 +609,7 @@ const selectedImpactScore =
         <div>
           <strong>{task.name}</strong>
           <small>
-            {task.owner} · Day {task.day} · {task.duration} days
+            {task.owner} | Day {task.day} | {task.duration} days
           </small>
         </div>
         <span
@@ -633,7 +637,7 @@ const selectedImpactScore =
 {strategyDetails[strategy as keyof typeof strategyDetails]
   .presentationDay > 7 && (
   <div className="deadline-warning" role="alert">
-    <strong>⚠ Deadline at risk</strong>
+    <strong>[!]  Deadline at risk</strong>
     <p>
       The final presentation moves to Day{" "}
       {strategyDetails[strategy as keyof typeof strategyDetails]
@@ -697,7 +701,7 @@ const selectedImpactScore =
               </>
             ) : (
               <div className="empty-state">
-                <div>⌁</div>
+                <div>[i]</div>
                 <strong>See how a change ripples</strong>
                 <p>
                   Simulate a disruption to open the recovery workbench and
@@ -743,11 +747,11 @@ const selectedImpactScore =
   setCopySuccess(false);
   setDecisionHistory((history) => [
   ...history,
-  `${new Date().toLocaleTimeString()} — Selected: Balanced recovery | Score: 100/100 | Validation: Passed`,
+  `${new Date().toLocaleTimeString()} - Selected: Balanced recovery | Score: 100/100 | Validation: Passed`,
 ]);
 }}
               >
-                <span>01 · BALANCED</span>
+                <span>01 | BALANCED</span>
                 <strong>Keep the plan steady</strong>
                 <small>Preview a limited schedule adjustment.</small>
               </button>
@@ -761,11 +765,11 @@ const selectedImpactScore =
   setCopySuccess(false);
   setDecisionHistory((history) => [
   ...history,
-  `${new Date().toLocaleTimeString()} — Selected: Deadline-first recovery | Score: 80/100 | Validation: Passed`,
+  `${new Date().toLocaleTimeString()} - Selected: Deadline-first recovery | Score: 80/100 | Validation: Passed`,
 ]);
 }}
               >
-                <span>02 · DEADLINE FIRST</span>
+                <span>02 | DEADLINE FIRST</span>
                 <strong>Protect the milestone</strong>
                 <small>Preview reassignment to another teammate.</small>
               </button>
@@ -779,13 +783,101 @@ const selectedImpactScore =
   setCopySuccess(false);
   setDecisionHistory((history) => [
   ...history,
-  `${new Date().toLocaleTimeString()} — Selected: Minimal-change recovery | Score: 20/100 | Validation: Failed — Presentation exceeds Day 7 deadline`,
+  `${new Date().toLocaleTimeString()} - Selected: Minimal-change recovery | Score: 20/100 | Validation: Failed - Presentation exceeds Day 7 deadline`,
 ]);
 }}
               >
-                <span>03 · MINIMAL CHANGE</span>
+                <span>03 | MINIMAL CHANGE</span>
                 <strong>Preserve ownership</strong>
                 <small>Preview a later schedule for evaluation.</small>
+              </button>
+            </div>
+
+            <div className="custom-recovery-form">
+              <h3>Evaluate Your Own Recovery Plan</h3>
+              <p className="form-description">
+  Enter your project schedule and evaluate it with the Ripple backend.
+</p>
+
+              <div className="form-group">
+                <label htmlFor="custom-strategy">Recovery strategy</label>
+                <select
+                  id="custom-strategy"
+                  value={customStrategy}
+                  onChange={(event) => setCustomStrategy(event.target.value)}
+                >
+                  <option value="Balanced recovery">Balanced recovery</option>
+                  <option value="Deadline-first recovery">Deadline-first recovery</option>
+                  <option value="Minimal-change recovery">Minimal-change recovery</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="custom-evaluation-day">Evaluation day (1–30)</label>
+                <input
+                  id="custom-evaluation-day"
+                  type="number"
+                  min="1"
+                  max="30"
+                  value={customEvaluationDay}
+                  onChange={(event) => setCustomEvaluationDay(event.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="custom-presentation-day">Presentation day (1–30)</label>
+                <input
+                  id="custom-presentation-day"
+                  type="number"
+                  min="1"
+                  max="30"
+                  value={customPresentationDay}
+                  onChange={(event) => setCustomPresentationDay(event.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="custom-owner">Evaluation owner</label>
+                <input
+                  id="custom-owner"
+                  type="text"
+                  value={customOwner}
+                  onChange={(event) => setCustomOwner(event.target.value)}
+                  placeholder="Enter responsible person's name"
+                  required
+                />
+              </div>
+
+              
+              <button className="evaluate-button"
+                type="button"
+                disabled={backendLoading}
+                onClick={() => {
+                  const evaluationDay = Number(customEvaluationDay);
+                  const presentationDay = Number(customPresentationDay);
+
+                  if (
+                    !customEvaluationDay.trim() ||
+                    !customPresentationDay.trim() ||
+                    !Number.isInteger(evaluationDay) ||
+                    !Number.isInteger(presentationDay) ||
+                    evaluationDay < 1 ||
+                    evaluationDay > 30 ||
+                    presentationDay < 1 ||
+                    presentationDay > 30 ||
+                    !customOwner.trim()
+                  ) {
+                    setBackendError("Enter a valid owner and whole-number days between 1 and 30.");
+                    setBackendResult(null);
+                    return;
+                  }
+
+                  void evaluateWithBackend();
+                }}
+              >
+                {backendLoading ? "Evaluating..." : "Evaluate custom recovery"}
               </button>
             </div>
 
@@ -853,9 +945,9 @@ const selectedImpactScore =
   <p>{selectedStrategy.description}</p>
   <p>
     Evaluation owner: <strong>{selectedStrategy.owner}</strong>
-    {" · "}
+    {" | "}
     Evaluation starts: <strong>Day {selectedStrategy.evaluationDay}</strong>
-    {" · "}
+    {" | "}
     Presentation starts: <strong>Day {selectedStrategy.presentationDay}</strong>
   </p>
 </div>
@@ -954,9 +1046,9 @@ Demo constraints checked; real-world constraints not verified
   }
 >
   {!hasValidRecommendation
-    ? "⚠ No strategy passed validation. Review the constraints before choosing a recovery plan."
+    ? "[!]  No strategy passed validation. Review the constraints before choosing a recovery plan."
     : selectedIsRecommended
-      ? "✓ Your selected strategy is the recommended option."
+      ? "[OK] Your selected strategy is the recommended option."
       : `Your selected strategy is ${selectedStrategy.title}. Consider ${recommendedStrategy.title}, which has the highest score among valid strategies.`}
 </p>
 
@@ -970,8 +1062,8 @@ Demo constraints checked; real-world constraints not verified
   }
 >
   {selectedValidation.isValid
-    ? "✓ Selected strategy passes all configured demo constraints."
-    : `⚠ Selected strategy needs review: ${selectedValidation.issues.join(" ")}`}
+    ? "[OK] Selected strategy passes all configured demo constraints."
+    : `[!]  Selected strategy needs review: ${selectedValidation.issues.join(" ")}`}
 </p>
 
 
@@ -1038,7 +1130,7 @@ Demo constraints checked; real-world constraints not verified
 
 {copySuccess && (
   <p className="copy-success-message" role="status">
-    ✓ Decision summary copied successfully!
+    [OK] Decision summary copied successfully!
   </p>
 )}
 
@@ -1049,7 +1141,7 @@ Demo constraints checked; real-world constraints not verified
   className="copy-summary-button"
   onClick={downloadDecisionReport}
 >
-  <span aria-hidden="true">↓ </span>
+  <span aria-hidden="true">v </span>
   Download Decision Report
 </button>
 
@@ -1075,10 +1167,10 @@ Demo constraints checked; real-world constraints not verified
   <strong>Decision status</strong>
   <span>
     {validStrategies.length === 0
-      ? "Needs review — no valid strategies"
+      ? "Needs review - no valid strategies"
       : validStrategies.length === comparisonStrategies.length
-        ? "Ready for review — all strategies passed"
-        : "Qualified — invalid strategies excluded"}
+        ? "Ready for review - all strategies passed"
+        : "Qualified - invalid strategies excluded"}
   </span>
   <p>
     This status reflects demo constraint checks, not a guarantee of real-world success.
@@ -1113,7 +1205,7 @@ Demo constraints checked; real-world constraints not verified
   {item.key === recommendedStrategy.key && (
     
 <span className="recommended-badge">
-  {hasValidRecommendation ? "Recommended" : "⚠ No valid strategy"}
+  {hasValidRecommendation ? "Recommended" : "[!]  No valid strategy"}
 </span>
 
   )}
@@ -1135,8 +1227,8 @@ Demo constraints checked; real-world constraints not verified
 >
   <strong>
     {item.validation.isValid
-      ? "✓ Constraints passed"
-      : "⚠ Constraints failed"}
+      ? "[OK] Constraints passed"
+      : "[!]  Constraints failed"}
   </strong>
 
   {item.validation.issues.length > 0 && (
@@ -1180,7 +1272,7 @@ Demo constraints checked; real-world constraints not verified
   <strong>Decision outcome:</strong>{" "}
   {selectedValidation.isValid
     ? "Passes configured demo constraints"
-    : "Needs review — one or more constraints failed"}
+    : "Needs review - one or more constraints failed"}
 </p>
 
 
@@ -1214,9 +1306,9 @@ Demo constraints checked; real-world constraints not verified
 
 
             <div className="validation-row">
-              <div className="validation-icon pass">✓</div>
+              <div className="validation-icon pass">[OK]</div>
               <div>
-                <strong>Demo validation complete — human review required</strong>
+                <strong>Demo validation complete - human review required</strong>
 <p>
   Configured demo constraints have been checked. Verify actual
   project deadlines, dependencies, and owner availability before
@@ -1240,10 +1332,10 @@ Demo constraints checked; real-world constraints not verified
     void evaluateWithBackend();
   setDecisionHistory((history) => [
   ...history,
-  `${new Date().toLocaleTimeString()} — Re-evaluated: ${selectedStrategy.title} | Score: ${selectedImpactScore}/100 | Validation: ${
+  `${new Date().toLocaleTimeString()} - Re-evaluated: ${selectedStrategy.title} | Score: ${selectedImpactScore}/100 | Validation: ${
     selectedValidation.isValid
       ? "Passed"
-      : `Failed — ${selectedValidation.issues.join(" ")}`
+      : `Failed - ${selectedValidation.issues.join(" ")}`
   }`,
 ]);
 }}
@@ -1261,14 +1353,14 @@ Demo constraints checked; real-world constraints not verified
     setApproved(true);
     setDecisionHistory((history) => [
   ...history,
-  `${new Date().toLocaleTimeString()} — Approved for review: ${selectedStrategy.title} | Score: ${selectedImpactScore}/100 | Validation: Passed | Evaluation owner: ${selectedStrategy.owner} | Presentation: Day ${selectedStrategy.presentationDay}`,
+  `${new Date().toLocaleTimeString()} - Approved for review: ${selectedStrategy.title} | Score: ${selectedImpactScore}/100 | Validation: Passed | Evaluation owner: ${selectedStrategy.owner} | Presentation: Day ${selectedStrategy.presentationDay}`,
 ]);
   }}
 >
   {approved
-    ? "✓ Marked approved"
+    ? "[OK] Marked approved"
     : !selectedValidation.isValid
-      ? "Cannot approve — validation failed"
+      ? "Cannot approve - validation failed"
       : "Approve demo plan →"}
 </button>
 
@@ -1289,7 +1381,7 @@ Demo constraints checked; real-world constraints not verified
 
             {reevaluated && !approved && (
   <div className="success-message">
-    <strong>✓ Strategy re-evaluated</strong>
+    <strong>[OK] Strategy re-evaluated</strong>
     <p>
       The recovery options and recommendation reflect the
       current demo rules. Please review the result before approval.
@@ -1371,7 +1463,7 @@ Demo constraints checked; real-world constraints not verified
     
 <ul className="decision-history-list">
   {decisionHistory.map((entry, index) => {
-    const timestamp = entry.split(" — ")[0];
+    const timestamp = entry.split(" - ")[0];
     const isApproved = entry.includes("Approved for review:");
     const isReevaluated = entry.includes("Re-evaluated:");
     const status = isApproved
@@ -1405,9 +1497,9 @@ return (
 
       <span className="history-entry-details">
   {entry
-    .split(" — ")
+    .split(" - ")
     .slice(1)
-    .join(" — ")
+    .join(" - ")
     .replace(
       /^(Selected: |Re-evaluated: |Approved for review: )/,
       ""
@@ -1430,7 +1522,7 @@ return (
 
 {approved && (
   <div className="success-message" role="status">
-    <strong>✓ Demo plan approved for review</strong>
+    <strong>[OK] Demo plan approved for review</strong>
     <p>
       Selected strategy: {selectedStrategy.title}
     </p>
@@ -1438,7 +1530,7 @@ return (
       Evaluation owner: {selectedStrategy.owner}
     </p>
     <p>
-      Evaluation: Day {selectedStrategy.evaluationDay} ·
+      Evaluation: Day {selectedStrategy.evaluationDay} |
       {" "}Final presentation: Day {selectedStrategy.presentationDay}
     </p>
     <p>
@@ -1453,7 +1545,7 @@ return (
         )}
 
         <footer>
-          RIPPLE · INTERACTIVE PROTOTYPE
+          RIPPLE | INTERACTIVE PROTOTYPE
           <span>Human-reviewed project recovery</span>
         </footer>
       </section>
@@ -1462,3 +1554,12 @@ return (
 }
 
 export default App;
+
+
+
+
+
+
+
+
+

@@ -1125,3 +1125,104 @@ word-break: normal;
   letter-spacing: 0.3px;
 }
 
+
+/* Custom recovery evaluation form */
+.custom-recovery-form {
+  background: #ffffff;
+  border: 1px solid #dce8df;
+  border-radius: 16px;
+  padding: 28px;
+  margin: 20px 0;
+  box-shadow: 0 8px 24px rgba(28, 81, 55, 0.06);
+}
+
+.custom-recovery-form h3 {
+  color: #174b35;
+  font-family: Inter, "DM Sans", sans-serif;
+  font-size: 24px;
+  font-weight: 750;
+  letter-spacing: -0.7px;
+  line-height: 1.3;
+  margin: 0 0 8px;
+}
+
+.custom-recovery-form .form-description {
+  color: #65766b;
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 0 0 22px;
+}
+
+.custom-recovery-form .form-group {
+  display: grid;
+  grid-template-columns: minmax(130px, 0.8fr) minmax(0, 1.2fr);
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.custom-recovery-form label {
+  color: #344b3d;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.custom-recovery-form input,
+.custom-recovery-form select {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  border: 1px solid #d5e1d8;
+  border-radius: 8px;
+  background: #fbfdfb;
+  color: #203b2c;
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.custom-recovery-form input:focus,
+.custom-recovery-form select:focus {
+  border-color: #438762;
+  box-shadow: 0 0 0 3px rgba(67, 135, 98, 0.13);
+}
+
+.custom-recovery-form .evaluate-button {
+  width: 100%;
+  margin-top: 6px;
+  padding: 13px 18px;
+  border: 0;
+  border-radius: 9px;
+  background: #20583e;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.custom-recovery-form .evaluate-button:hover:not(:disabled) {
+  background: #17452f;
+  transform: translateY(-1px);
+}
+
+.custom-recovery-form .evaluate-button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+@media (max-width: 600px) {
+  .custom-recovery-form {
+    padding: 20px 16px;
+  }
+
+  .custom-recovery-form h3 {
+    font-size: 21px;
+  }
+
+  .custom-recovery-form .form-group {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+}
